@@ -65,7 +65,9 @@ describe("Category Unit Test", () => {
       expect(category.is_active).toBeTruthy();
       expect(category.created_at).toBeInstanceOf(Date);
     });
+  });
 
+  describe("create a command", () => {
     test("should creat a category with command", () => {
       const category = Category.create({
         name: "Serie",
@@ -75,25 +77,6 @@ describe("Category Unit Test", () => {
       expect(category.description).toBeNull();
       expect(category.is_active).toBeTruthy();
       expect(category.created_at).toBeInstanceOf(Date);
-    });
-
-    describe("category_field", () => {
-      const arrange = [
-        { category_id: null },
-        { category_id: undefined },
-        { category_id: new Uuid() },
-      ];
-
-      test.each(arrange)("id = %j", ({ category_id }) => {
-        const category = new Category({
-          name: "Serie",
-          category_id: category_id as any,
-        });
-        expect(category.category_id).toBeInstanceOf(Uuid);
-        if (category_id instanceof Uuid) {
-          expect(category.category_id).toBe(category_id);
-        }
-      });
     });
 
     test("should change name", () => {
@@ -129,6 +112,25 @@ describe("Category Unit Test", () => {
       });
       category.desactive();
       expect(category.is_active).toBe(false);
+    });
+  });
+
+  describe("category_field", () => {
+    const arrange = [
+      { category_id: null },
+      { category_id: undefined },
+      { category_id: new Uuid() },
+    ];
+
+    test.each(arrange)("id = %j", ({ category_id }) => {
+      const category = new Category({
+        name: "Serie",
+        category_id: category_id as any,
+      });
+      expect(category.category_id).toBeInstanceOf(Uuid);
+      if (category_id instanceof Uuid) {
+        expect(category.category_id).toBe(category_id);
+      }
     });
   });
 });
