@@ -1,7 +1,12 @@
+import { create } from "lodash";
 import { Uuid } from "../../../shared/domain/value-objects/uuid.vo";
 import { Category } from "../category.entity";
 
 describe("Category Unit Test", () => {
+  let validatorSpy: any;
+  beforeEach(() => {
+    validatorSpy = jest.spyOn(Category, "validate");
+  });
   describe("constructor", () => {
     test("should create a category with deafult values", () => {
       const category = new Category({
@@ -77,6 +82,7 @@ describe("Category Unit Test", () => {
       expect(category.description).toBeNull();
       expect(category.is_active).toBeTruthy();
       expect(category.created_at).toBeInstanceOf(Date);
+      expect(validatorSpy).toHaveBeenCalledTimes(1);
     });
 
     test("should change name", () => {
@@ -85,6 +91,7 @@ describe("Category Unit Test", () => {
       });
       category.changeName("Terror");
       expect(category.name).toBe("Terror");
+      expect(validatorSpy).toHaveBeenCalledTimes(2);
     });
 
     test("shoudl change description", () => {
@@ -94,6 +101,7 @@ describe("Category Unit Test", () => {
       });
       category.changeDescription("Serie description");
       expect(category.description).toBe("Serie description");
+      expect(validatorSpy).toHaveBeenCalledTimes(2);
     });
 
     test("should active", () => {
@@ -131,6 +139,84 @@ describe("Category Unit Test", () => {
       if (category_id instanceof Uuid) {
         expect(category.category_id).toBe(category_id);
       }
+    });
+  });
+});
+
+describe("Category Validation", () => {
+  describe("create command", () => {
+    test("should an invalid category with name property", () => {
+      expect(() => Category.create({ name: null })).containsErrorMessages({
+        name: [
+          "name should not be empty",
+          "name must be a string",
+          "name must be shorter than or equal to 255 characters",
+        ],
+      });
+
+      expect(() => Category.create({ name: "" })).containsErrorMessages({
+        name: ["name should not be empty"],
+      });
+
+      expect(() => Category.create({ name: 5 as any })).containsErrorMessages({
+        name: [
+          "name must be a string",
+          "name must be shorter than or equal to 255 characters",
+        ],
+      });
+
+      expect(() =>
+        Category.create({ name: "t".repeat(256) })
+      ).containsErrorMessages({
+        name: ["name must be shorter than or equal to 255 characters"],
+      });
+    });
+
+    it("should a invalid category using  description property", () => {
+      expect(() =>
+        Category.create({ name: "Serie", description: 5 } as any)
+      ).containsErrorMessages({
+        description: ["description must be a string"],
+      });
+    });
+
+    it("should a invalid category using is_active property", () => {
+      expect(() =>
+        Category.create({ name: "Serie", is_active: 5 } as any)
+      ).containsErrorMessages({
+        is_active: ["is_active must be a boolean value"],
+      });
+    });
+
+    it("should a invalid category using name preporty", () => {
+      let category = Category.create({ name: "Movie" });
+      expect(() => category.changeName(null)).containsErrorMessages({
+        name: [
+          "name should not be empty",
+          "name must be a string",
+          "name must be shorter than or equal to 255 characters",
+        ],
+      });
+
+      expect(() => category.changeName("")).containsErrorMessages({
+        name: ["name should not be empty"],
+      });
+
+      expect(() => category.changeName(5 as any)).containsErrorMessages({
+        name: [
+          "name must be a string",
+          "name must be shorter than or equal to 255 characters",
+        ],
+      });
+    });
+  });
+
+  describe("changeDescription method", () => {
+    it("should a invalid category using property", () => {
+      const category = Category.create({ name: "Serie" });
+      expect(() => category.changeDescription(5 as any)).containsErrorMessages({
+        description: ["description must be a string"],
+      });
     });
   });
 });
