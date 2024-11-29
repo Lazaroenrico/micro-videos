@@ -1,10 +1,10 @@
 // formata o erro
-export type FieldsErros = {
+export type FieldsErrors = {
   [field: string]: string[];
 };
 
 export interface IValidatorFields<PropsValidated> {
-  errors: FieldsErros | null;
+  errors: FieldsErrors | null;
   validatedData: PropsValidated | null;
   validate(data: any): boolean;
 }
